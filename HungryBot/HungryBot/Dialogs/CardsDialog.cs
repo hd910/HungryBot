@@ -9,7 +9,11 @@ namespace HungryBot.Dialogs
     [Serializable]
     public class CardsDialog : IDialog<object>
     {
-        private IEnumerable<string> options = new List<string> { "More", "Next", "Find Food"};
+        private const string MoreOption = "Show me more";
+        private const string NextOption = "Next food";
+        private const string FindOption = "Find Restaurant";
+
+        private IEnumerable<string> options = new List<string> { MoreOption, NextOption, FindOption };
 
 
         public Task StartAsync(IDialogContext context)
@@ -21,28 +25,39 @@ namespace HungryBot.Dialogs
 
         private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
         {
-            var activity = await result as Activity;
+            var userText = await result as Activity;
+            switch (userText.Text)
+            {
+                case MoreOption:
+                    await DisplayFoodCard(context, result);
+                    break;
+                case NextOption:
+                    await DisplayFoodCard(context, result);
+                    break;
+                case FindOption:
+                    break;
+                default:
+                    WelcomeDialog(context);
+                    break;
+            }
+        }
 
-            //// calculate something for us to return
-            //int length = (activity.Text ?? string.Empty).Length;
-
-            //// return our reply to the user
-            //await context.PostAsync($"You sent {activity.Text} which was {length} characters");
-
-            //context.Wait(MessageReceivedAsync);
+        private void WelcomeDialog(IDialogContext context)
+        {
+            //Introduction dialog
             PromptDialog.Choice<string>(
                 context,
-                this.DisplaySelectedCard,
-                options,
-                "Hi there, choose one of the options below",
+                this.DisplayFoodCard,
+                new string[] {"Show me food!"},
+                "Hi there! I'm the Hungry Bot. Are you hungry?",
                 "Ooops, what you wrote is not a valid option, please try again",
                 3,
                 PromptStyle.Auto);
         }
 
-        public async Task DisplaySelectedCard(IDialogContext context, IAwaitable<string> result)
+        public async Task DisplayFoodCard(IDialogContext context, IAwaitable<Object> result)
         {
-            var selectedCard = await result;
+            var userText = await result;
 
             var message = context.MakeMessage();
 
@@ -60,7 +75,9 @@ namespace HungryBot.Dialogs
             {
                 Title = "How about Burger?",
                 Images = new List<CardImage> { new CardImage("https://farm3.staticflickr.com/2880/33359463604_c5c8bc6b10_z.jpg") },
-                Buttons = new List<CardAction> { new CardAction(ActionTypes.PostBack, "More", value: "More") }
+                Buttons = new List<CardAction> { new CardAction(ActionTypes.PostBack, MoreOption, value: MoreOption),
+                    new CardAction(ActionTypes.PostBack, NextOption, value: NextOption),
+                    new CardAction(ActionTypes.PostBack, FindOption, value: FindOption)}
             };
 
             return heroCard.ToAttachment();
