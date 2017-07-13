@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using System.Collections.Generic;
+using HungryBot.Model;
 
 namespace HungryBot.Dialogs
 {
@@ -12,9 +13,10 @@ namespace HungryBot.Dialogs
         private const string MoreOption = "Show me more";
         private const string NextOption = "Next food";
         private const string FindOption = "Find Restaurant";
+        private const string StartOption = "Show me food!";
 
         private IEnumerable<string> options = new List<string> { MoreOption, NextOption, FindOption };
-
+        private Food currentFood;
 
         public Task StartAsync(IDialogContext context)
         {
@@ -25,24 +27,86 @@ namespace HungryBot.Dialogs
 
         private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
         {
-            var userText = await result as Activity;
-            switch (userText.Text)
+            var activity = await result as Activity;
+
+            //Get state
+            StateClient stateClient = activity.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
+            var sentGreeting = userData.GetProperty<bool>("SentGreeting");
+
+            if (activity.Text.Contains(MoreOption))
             {
-                case MoreOption:
-                    await DisplayFoodCard(context, result);
-                    break;
-                case NextOption:
-                    await DisplayFoodCard(context, result);
-                    break;
-                case FindOption:
-                    break;
-                default:
-                    WelcomeDialog(context);
-                    break;
+                //More of the same food
+                //await DisplayFoodCard(context, result);
+                if(currentFood == null)
+                {
+                    //No current food - generate random
+                    currentFood = getRandomFood();
+                }
+                else
+                {
+                    currentFood.IncrementIndex();
+                }
+            } else if(activity.Text == NextOption)
+            {
+                //Next food type
+                currentFood = getRandomFood();
+            } else if (activity.Text.Contains(FindOption))
+            {
+                //Find restaurant closest
+                await DisplayFoodCard(context, result);
+                return;
+            } else{
+                if (!sentGreeting)
+                {
+                    WelcomePrompt(context);
+
+                    //Save state
+                    var data = context.UserData;
+                    data.SetValue("SentGreeting", true);
+                }
+                else
+                {
+                    //Unknown - unrecognized message
+                    UnrecognisedPrompt(context);
+                }
+                return;
             }
+
+            ShowFoodCard(currentFood, context);
+
         }
 
-        private void WelcomeDialog(IDialogContext context)
+        private async void ShowFoodCard(Food currentFood, IDialogContext context)
+        {
+            var message = context.MakeMessage();
+
+            var attachment = BuildHeroCard(currentFood);
+            message.Attachments.Add(attachment);
+
+            await context.PostAsync(message);
+
+            context.Wait(this.MessageReceivedAsync);
+        }
+
+        private Food getRandomFood()
+        {
+            return null;
+        }
+
+        private void UnrecognisedPrompt(IDialogContext context)
+        {
+            PromptDialog.Choice<string>(
+                context,
+                this.DisplayFoodCard,
+                new string[] { "Show me food!" },
+                "Sorry, I didn't understand that :( \n Press the button below to see food!",
+                "Ooops, what you wrote is not a valid option, please try again",
+                3,
+                PromptStyle.Auto);
+        }
+
+        private void WelcomePrompt(IDialogContext context)
         {
             //Introduction dialog
             PromptDialog.Choice<string>(
@@ -71,16 +135,36 @@ namespace HungryBot.Dialogs
 
         private static Attachment GetHeroCard()
         {
+            var foodName = "Burger";
             var heroCard = new HeroCard
             {
-                Title = "How about Burger?",
+                Title = String.Format("How about {0}?", foodName),
                 Images = new List<CardImage> { new CardImage("https://farm3.staticflickr.com/2880/33359463604_c5c8bc6b10_z.jpg") },
-                Buttons = new List<CardAction> { new CardAction(ActionTypes.PostBack, MoreOption, value: MoreOption),
-                    new CardAction(ActionTypes.PostBack, NextOption, value: NextOption),
-                    new CardAction(ActionTypes.PostBack, FindOption, value: FindOption)}
+                Buttons = new List<CardAction> { new CardAction(ActionTypes.ImBack, MoreOption, value: MoreOption),
+                    new CardAction(ActionTypes.ImBack, NextOption, value: NextOption),
+                    new CardAction(ActionTypes.ImBack, FindOption, value: "Show me more " + foodName)}
             };
 
             return heroCard.ToAttachment();
         }
+
+        private static Attachment BuildHeroCard(Food currentFood)
+        {
+            var foodName = currentFood.name;
+            var foodURL = currentFood.getCurrentURL();
+
+            var heroCard = new HeroCard
+            {
+                Title = String.Format("How about {0}?", foodName),
+                Images = new List<CardImage> { new CardImage(foodURL) },
+                Buttons = new List<CardAction> { new CardAction(ActionTypes.ImBack, MoreOption, value: MoreOption),
+                    new CardAction(ActionTypes.ImBack, NextOption, value: NextOption),
+                    new CardAction(ActionTypes.ImBack, FindOption, value: "Show me more " + foodName)}
+            };
+
+            return heroCard.ToAttachment();
+        }
+
+
     }
 }
