@@ -25,7 +25,7 @@ namespace HungryBot.Model
         public void IncrementIndex()
         {
             //Increment index. If end of array, reset to 0
-            currentURLIndex = (currentURLIndex >= URLList.Length) ? 0 : currentURLIndex++;
+            currentURLIndex = (currentURLIndex >= URLList.Length) ? 0 : currentURLIndex+1;
         }
 
         public string getCurrentURL()
