@@ -11,12 +11,13 @@ namespace HungryBot.Model
         public string name { get; }
         private string[] URLList;
         private int currentURLIndex;
-        private Random rnd = new Random();
+        
 
         public FoodCardModel(string name, List<string> urls)
         {
             this.name = name;
             currentURLIndex = 0;
+            Random rnd = new Random();
 
             //Randomise the order of the array
             URLList = urls.OrderBy(x => rnd.Next()).ToArray();   
