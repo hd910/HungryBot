@@ -51,6 +51,17 @@ namespace HungryBot.Model
         [JsonProperty(PropertyName = "url6thumb")]
         public string URL6Thumb { get; set; }
 
+        public static List<FoodModel> foodList;
+
+        public static async System.Threading.Tasks.Task<List<FoodModel>> GetFoodList()
+        {
+            if(foodList == null)
+            {
+                foodList = await LoadFoodListAsync();
+            }
+
+            return foodList;
+        }
 
         public static async System.Threading.Tasks.Task<List<FoodModel>> LoadFoodListAsync()
         {

@@ -32,7 +32,7 @@ namespace HungryBot.Dialogs
         {
             var activity = await result as Activity;
 
-            List<FoodModel> foodList = await FoodModel.LoadFoodListAsync();
+            List<FoodModel> foodList = await FoodModel.GetFoodList();
 
             //Get state
             StateClient stateClient = activity.GetStateClient();
@@ -61,7 +61,6 @@ namespace HungryBot.Dialogs
             else if (activity.Text.Contains(FindOption))
             {
                 //Find restaurant closest
-                await DisplayFoodCard(context, result);
                 return;
             }
             else
@@ -124,7 +123,7 @@ namespace HungryBot.Dialogs
         {
             PromptDialog.Choice<string>(
                 context,
-                this.DisplayFoodCard,
+                this.DisplayRandomCard,
                 new string[] { "Show me food!" },
                 "Sorry, I didn't understand that :( \n Press the button below to see food!",
                 "Ooops, what you wrote is not a valid option, please try again",
@@ -137,7 +136,7 @@ namespace HungryBot.Dialogs
             //Introduction dialog
             PromptDialog.Choice<string>(
                 context,
-                this.DisplayFoodCard,
+                this.DisplayRandomCard,
                 new string[] {"Show me food!"},
                 "Hi there! I'm the Hungry Bot. Are you hungry?",
                 "Ooops, what you wrote is not a valid option, please try again",
@@ -145,7 +144,7 @@ namespace HungryBot.Dialogs
                 PromptStyle.Auto);
         }
 
-        public async Task DisplayFoodCard(IDialogContext context, IAwaitable<Object> result)
+        public async Task DisplayRandomCard(IDialogContext context, IAwaitable<Object> result)
         {
             var userText = await result;
 
