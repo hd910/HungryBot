@@ -96,7 +96,7 @@ namespace HungryBot.Dialogs
 
             await context.PostAsync(message);
 
-            context.Wait(this.MessageReceivedAsync);
+            //context.Wait(this.MessageReceivedAsync);
         }
 
         private FoodCardModel getRandomFood(List<FoodModel> list)
