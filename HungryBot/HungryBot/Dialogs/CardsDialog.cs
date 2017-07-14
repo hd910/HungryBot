@@ -16,7 +16,7 @@ namespace HungryBot.Dialogs
         private const string StartOption = "Show me food!";
 
         private IEnumerable<string> options = new List<string> { MoreOption, NextOption, FindOption };
-        private Food currentFood;
+        private FoodCardModel currentFood;
 
         public Task StartAsync(IDialogContext context)
         {
@@ -38,7 +38,7 @@ namespace HungryBot.Dialogs
             {
                 //More of the same food
                 //await DisplayFoodCard(context, result);
-                if(currentFood == null)
+                if (currentFood == null)
                 {
                     //No current food - generate random
                     currentFood = getRandomFood();
@@ -47,16 +47,20 @@ namespace HungryBot.Dialogs
                 {
                     currentFood.IncrementIndex();
                 }
-            } else if(activity.Text == NextOption)
+            }
+            else if (activity.Text == NextOption)
             {
                 //Next food type
                 currentFood = getRandomFood();
-            } else if (activity.Text.Contains(FindOption))
+            }
+            else if (activity.Text.Contains(FindOption))
             {
                 //Find restaurant closest
                 await DisplayFoodCard(context, result);
                 return;
-            } else{
+            }
+            else
+            {
                 if (!sentGreeting)
                 {
                     WelcomePrompt(context);
@@ -77,7 +81,7 @@ namespace HungryBot.Dialogs
 
         }
 
-        private async void ShowFoodCard(Food currentFood, IDialogContext context)
+        private async void ShowFoodCard(FoodCardModel currentFood, IDialogContext context)
         {
             var message = context.MakeMessage();
 
@@ -89,7 +93,7 @@ namespace HungryBot.Dialogs
             context.Wait(this.MessageReceivedAsync);
         }
 
-        private Food getRandomFood()
+        private FoodCardModel getRandomFood()
         {
             return null;
         }
@@ -148,7 +152,7 @@ namespace HungryBot.Dialogs
             return heroCard.ToAttachment();
         }
 
-        private static Attachment BuildHeroCard(Food currentFood)
+        private static Attachment BuildHeroCard(FoodCardModel currentFood)
         {
             var foodName = currentFood.name;
             var foodURL = currentFood.getCurrentURL();

@@ -5,14 +5,15 @@ using System.Web;
 
 namespace HungryBot.Model
 {
-    public class Food
+    [Serializable]
+    public class FoodCardModel
     {
         public string name { get; }
         private string[] URLList;
         private int currentURLIndex;
         private Random rnd = new Random();
 
-        public Food(string name, string[] urls)
+        public FoodCardModel(string name, string[] urls)
         {
             this.name = name;
             currentURLIndex = 0;
