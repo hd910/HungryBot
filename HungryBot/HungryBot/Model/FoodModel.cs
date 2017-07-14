@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Web;
 
 namespace HungryBot.Model
 {
+    [Serializable]
     public class FoodModel
     {
         public string Id { get; set; }
@@ -48,5 +50,67 @@ namespace HungryBot.Model
 
         [JsonProperty(PropertyName = "url6thumb")]
         public string URL6Thumb { get; set; }
+
+
+        public static async System.Threading.Tasks.Task<List<FoodModel>> LoadFoodListAsync()
+        {
+            HttpClient _client = new HttpClient();
+            var url = "http://hungrydata.azurewebsites.net/foodURLList.txt";
+            var content = await _client.GetStringAsync(url);
+
+            List<FoodModel> foodList = new List<FoodModel>();
+
+
+            if (content != null)
+            {
+                string[] contentArray = content.Split('\n');
+                int index = 0;
+
+                //Loop through food types 
+                //TODO: Clean up code
+                while (index + 1 < contentArray.Length)
+                {
+                    FoodModel tempFood = new FoodModel();
+                    string name = contentArray[index];
+                    tempFood.Name = name;
+                    index++;
+                    index++;
+
+                    string fullURL = contentArray[index];
+                    tempFood.URL1 = fullURL;
+                    index++;
+                    index++;
+
+                    fullURL = contentArray[index];
+                    tempFood.URL2 = fullURL;
+                    index++;
+                    index++;
+
+                    fullURL = contentArray[index];
+                    tempFood.URL3 = fullURL;
+                    index++;
+                    index++;
+
+                    fullURL = contentArray[index];
+                    tempFood.URL4 = fullURL;
+                    index++;
+                    index++;
+
+                    fullURL = contentArray[index];
+                    tempFood.URL5 = fullURL;
+                    index++;
+                    index++;
+
+                    fullURL = contentArray[index];
+                    tempFood.URL6 = fullURL;
+                    index++;
+                    index++;
+
+                    foodList.Add(tempFood);
+                }
+            }
+
+            return foodList;
+        }
     }
 }

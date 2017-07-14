@@ -129,7 +129,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Model\Food.cs" />
+    <Compile Include="Model\FoodCardModel.cs" />
+    <Compile Include="Model\FoodModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

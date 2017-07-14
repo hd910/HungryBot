@@ -13,7 +13,7 @@ namespace HungryBot.Model
         private int currentURLIndex;
         private Random rnd = new Random();
 
-        public FoodCardModel(string name, string[] urls)
+        public FoodCardModel(string name, List<string> urls)
         {
             this.name = name;
             currentURLIndex = 0;

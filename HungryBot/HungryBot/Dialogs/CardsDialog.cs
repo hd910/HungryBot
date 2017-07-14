@@ -4,6 +4,8 @@ using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using System.Collections.Generic;
 using HungryBot.Model;
+using Microsoft.WindowsAzure.MobileServices;
+using System.Linq;
 
 namespace HungryBot.Dialogs
 {
@@ -18,6 +20,7 @@ namespace HungryBot.Dialogs
         private IEnumerable<string> options = new List<string> { MoreOption, NextOption, FindOption };
         private FoodCardModel currentFood;
 
+
         public Task StartAsync(IDialogContext context)
         {
             context.Wait(MessageReceivedAsync);
@@ -28,6 +31,8 @@ namespace HungryBot.Dialogs
         private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
         {
             var activity = await result as Activity;
+
+            List<FoodModel> foodList = await FoodModel.LoadFoodListAsync();
 
             //Get state
             StateClient stateClient = activity.GetStateClient();
@@ -41,7 +46,7 @@ namespace HungryBot.Dialogs
                 if (currentFood == null)
                 {
                     //No current food - generate random
-                    currentFood = getRandomFood();
+                    currentFood = getRandomFood(foodList);
                 }
                 else
                 {
@@ -51,7 +56,7 @@ namespace HungryBot.Dialogs
             else if (activity.Text == NextOption)
             {
                 //Next food type
-                currentFood = getRandomFood();
+                currentFood = getRandomFood(foodList);
             }
             else if (activity.Text.Contains(FindOption))
             {
@@ -81,6 +86,7 @@ namespace HungryBot.Dialogs
 
         }
 
+
         private async void ShowFoodCard(FoodCardModel currentFood, IDialogContext context)
         {
             var message = context.MakeMessage();
@@ -93,9 +99,25 @@ namespace HungryBot.Dialogs
             context.Wait(this.MessageReceivedAsync);
         }
 
-        private FoodCardModel getRandomFood()
+        private FoodCardModel getRandomFood(List<FoodModel> list)
         {
-            return null;
+            //Randomize order
+            Random rnd = new Random();
+            int index = rnd.Next(0, list.Count);
+            FoodModel selectedFood = list[index];
+
+            var name = selectedFood.Name;
+            List<string> urlList =  new List<string>();
+            urlList.Add(selectedFood.URL1);
+            urlList.Add(selectedFood.URL2);
+            urlList.Add(selectedFood.URL3);
+            urlList.Add(selectedFood.URL4);
+            urlList.Add(selectedFood.URL5);
+            urlList.Add(selectedFood.URL6);
+
+            FoodCardModel foodCard = new FoodCardModel(name, urlList);
+
+            return foodCard;
         }
 
         private void UnrecognisedPrompt(IDialogContext context)

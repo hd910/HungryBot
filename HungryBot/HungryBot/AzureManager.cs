@@ -8,6 +8,7 @@ using System.Web;
 
 namespace HungryBot
 {
+    [Serializable]
     public class AzureManager
     {
         private static AzureManager instance;
@@ -44,5 +45,4 @@ namespace HungryBot
             return await this.foodModelTable.ToListAsync();
         }
     }
-}
 }
