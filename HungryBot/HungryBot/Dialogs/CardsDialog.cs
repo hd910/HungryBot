@@ -16,6 +16,7 @@ namespace HungryBot.Dialogs
         private const string NextOption = "Next food";
         private const string FindOption = "Find Restaurant";
         private const string StartOption = "Show me food!";
+        private const string yelpUrl = "https://www.yelp.com/search?find_desc={0}&ns=1";
 
         private IEnumerable<string> options = new List<string> { MoreOption, NextOption, FindOption };
         private FoodCardModel currentFood;
@@ -165,9 +166,9 @@ namespace HungryBot.Dialogs
             {
                 Title = String.Format("How about {0}?", foodName),
                 Images = new List<CardImage> { new CardImage(foodURL) },
-                Buttons = new List<CardAction> { new CardAction(ActionTypes.ImBack, MoreOption, value: MoreOption),
+                Buttons = new List<CardAction> { new CardAction(ActionTypes.ImBack, MoreOption, value: "Show me more " + foodName),
                     new CardAction(ActionTypes.ImBack, NextOption, value: NextOption),
-                    new CardAction(ActionTypes.ImBack, FindOption, value: "Show me more " + foodName)}
+                    new CardAction(ActionTypes.OpenUrl, FindOption, value: String.Format(yelpUrl, foodName))}
             };
 
             return heroCard.ToAttachment();
