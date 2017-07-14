@@ -94,8 +94,6 @@ namespace HungryBot.Dialogs
             message.Attachments.Add(attachment);
 
             await context.PostAsync(message);
-
-            //context.Wait(this.MessageReceivedAsync);
         }
 
         private FoodCardModel getRandomFood(List<FoodModel> list)
@@ -150,27 +148,12 @@ namespace HungryBot.Dialogs
 
             var message = context.MakeMessage();
 
-            var attachment = GetHeroCard();
+            List<FoodModel> foodList = await FoodModel.GetFoodList();
+            currentFood = getRandomFood(foodList);
+            var attachment = BuildHeroCard(currentFood);
             message.Attachments.Add(attachment);
 
             await context.PostAsync(message);
-
-            context.Wait(this.MessageReceivedAsync);
-        }
-
-        private static Attachment GetHeroCard()
-        {
-            var foodName = "Burger";
-            var heroCard = new HeroCard
-            {
-                Title = String.Format("How about {0}?", foodName),
-                Images = new List<CardImage> { new CardImage("https://farm3.staticflickr.com/2880/33359463604_c5c8bc6b10_z.jpg") },
-                Buttons = new List<CardAction> { new CardAction(ActionTypes.ImBack, MoreOption, value: MoreOption),
-                    new CardAction(ActionTypes.ImBack, NextOption, value: NextOption),
-                    new CardAction(ActionTypes.ImBack, FindOption, value: "Show me more " + foodName)}
-            };
-
-            return heroCard.ToAttachment();
         }
 
         private static Attachment BuildHeroCard(FoodCardModel currentFood)
