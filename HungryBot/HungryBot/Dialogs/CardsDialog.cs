@@ -84,7 +84,7 @@ namespace HungryBot.Dialogs
 
             ShowFoodCard(currentFood, context);
 
-            return;
+            context.Wait(MessageReceivedAsync);
 
         }
 
