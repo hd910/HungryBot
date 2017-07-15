@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Threading.Tasks;
 using Microsoft.Bot.Connector;
+using HungryBot.Model;
 
 namespace HungryBot.Dialogs
 {
@@ -16,6 +17,7 @@ namespace HungryBot.Dialogs
         private const string FindOption = "Find Restaurant";
         private const string StartOption = "Show me food!";
         private const string yelpUrl = "https://www.yelp.com/search?find_desc={0}&ns=1";
+        private FoodCardModel currentFood;
 
         Task IDialog<object>.StartAsync(IDialogContext context)
         {
@@ -41,46 +43,85 @@ namespace HungryBot.Dialogs
         private async Task GetStarted(IDialogContext context, IAwaitable<object> result)
         {
             var activity = await result;
+            List<FoodModel> foodList = await FoodModel.GetFoodList();
             //await context.PostAsync($@"Hi {activity}!");
 
-            showFood(context);
+            if (currentFood == null)
+            {
+                //No current food - generate random
+                currentFood = getRandomFood(foodList);
+            }
+
+            showFood(context, currentFood);
         }
 
-        private async Task FoodEntered(IDialogContext context, IAwaitable<object> result)
+        private async Task BotOptions(IDialogContext context, IAwaitable<object> result)
         {
             var userText = await result;
+            List<FoodModel> foodList = await FoodModel.GetFoodList();
 
-            showFood(context);
+            if (userText.ToString() == MoreOption)
+            {
+                //More of the same food
+                //await DisplayFoodCard(context, result);
+                if (currentFood == null)
+                {
+                    //No current food - generate random
+                    currentFood = getRandomFood(foodList);
+                }
+                else
+                {
+                    currentFood.IncrementIndex();
+                }
+                showFood(context, currentFood);
+            }
+            else if (userText.ToString() == NextOption)
+            {
+                //Next food type
+                currentFood = getRandomFood(foodList);
+                showFood(context, currentFood);
+            }
+            else if (userText.ToString() == FindOption)
+            {
+                //showFood(context);
+            }
+            else
+            {
 
-            //if (userText == MoreOption)
-            //{
-            //    context.Wait(GetStarted);
-            //}
-            //else if (userText == NextOption)
-            //{
-            //    context.Wait(GetStarted);
-            //}
-            //else if (userText == FindOption)
-            //{
-            //    context.Wait(GetStarted);
-            //}
-            //else
-            //{
-
-            //}
-            //return;
+            }
         }
 
-        private void showFood(IDialogContext context)
+        private void showFood(IDialogContext context, FoodCardModel current)
         {
             PromptDialog.Choice<string>(
                 context,
-                FoodEntered,
+                BotOptions,
                 new string[] { MoreOption, NextOption, FindOption },
-                "[Show food here]",
+                current.name,
                 "Ooops, what you wrote is not a valid option, please try again",
                 3,
                 PromptStyle.Auto);
+        }
+
+        private FoodCardModel getRandomFood(List<FoodModel> list)
+        {
+            //Randomize order
+            Random rnd = new Random();
+            int index = rnd.Next(0, list.Count);
+            FoodModel selectedFood = list[index];
+
+            var name = selectedFood.Name;
+            List<string> urlList = new List<string>();
+            urlList.Add(selectedFood.URL1);
+            urlList.Add(selectedFood.URL2);
+            urlList.Add(selectedFood.URL3);
+            urlList.Add(selectedFood.URL4);
+            urlList.Add(selectedFood.URL5);
+            urlList.Add(selectedFood.URL6);
+
+            FoodCardModel foodCard = new FoodCardModel(name, urlList);
+
+            return foodCard;
         }
     }
 }
