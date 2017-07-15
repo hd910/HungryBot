@@ -18,7 +18,7 @@ namespace HungryBot
         {
             if (activity.Type == ActivityTypes.Message)
             {
-                await Conversation.SendAsync(activity, () => new Dialogs.CardsDialog());
+                await Conversation.SendAsync(activity, () => new Dialogs.FoodCardsDialog());
             }
             else
             {

@@ -121,8 +121,8 @@ namespace HungryBot.Dialogs
             {
                 Title = String.Format("How about {0}?", foodName),
                 Images = new List<CardImage> { new CardImage(foodURL) },
-                Buttons = new List<CardAction> { new CardAction(ActionTypes.PostBack, MoreOption, value: "Show me more " + foodName),
-                    new CardAction(ActionTypes.PostBack, NextOption, value: NextOption),
+                Buttons = new List<CardAction> { new CardAction(ActionTypes.ImBack, MoreOption, value: "Show me more " + foodName),
+                    new CardAction(ActionTypes.ImBack, NextOption, value: NextOption),
                     new CardAction(ActionTypes.OpenUrl, FindOption, value: String.Format(yelpUrl, foodName))}
             };
 
