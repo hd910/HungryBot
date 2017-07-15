@@ -84,52 +84,10 @@ namespace HungryBot.Dialogs
 
             ShowFoodCard(currentFood, context);
 
-        }
-
-
-        private async void ShowFoodCard(FoodCardModel currentFood, IDialogContext context)
-        {
-            var message = context.MakeMessage();
-
-            var attachment = BuildHeroCard(currentFood);
-            message.Attachments.Add(attachment);
-
-            await context.PostAsync(message);
+            return;
 
         }
 
-        private FoodCardModel getRandomFood(List<FoodModel> list)
-        {
-            //Randomize order
-            Random rnd = new Random();
-            int index = rnd.Next(0, list.Count);
-            FoodModel selectedFood = list[index];
-
-            var name = selectedFood.Name;
-            List<string> urlList =  new List<string>();
-            urlList.Add(selectedFood.URL1);
-            urlList.Add(selectedFood.URL2);
-            urlList.Add(selectedFood.URL3);
-            urlList.Add(selectedFood.URL4);
-            urlList.Add(selectedFood.URL5);
-            urlList.Add(selectedFood.URL6);
-
-            FoodCardModel foodCard = new FoodCardModel(name, urlList);
-
-            return foodCard;
-        }
-
-        private void UnrecognisedPrompt(IDialogContext context)
-        {
-            PromptDialog.Choice<string>(
-                context,
-                this.DisplayRandomCard,
-                new string[] { "Show me food!" },
-                "Sorry, I didn't understand that :( \n Press the button below to see food!",
-                "Ooops, what you wrote is not a valid option, please try again",
-                3,
-                PromptStyle.Auto);
-        }
 
         private void WelcomePrompt(IDialogContext context)
         {
@@ -144,20 +102,16 @@ namespace HungryBot.Dialogs
                 PromptStyle.Auto);
         }
 
-        public async Task DisplayRandomCard(IDialogContext context, IAwaitable<Object> result)
+        private void UnrecognisedPrompt(IDialogContext context)
         {
-            var userText = await result;
-
-            var message = context.MakeMessage();
-
-            List<FoodModel> foodList = await FoodModel.GetFoodList();
-            currentFood = getRandomFood(foodList);
-            var attachment = BuildHeroCard(currentFood);
-            message.Attachments.Add(attachment);
-
-            await context.PostAsync(message);
-
-            context.Wait(this.MessageReceivedAsync);
+            PromptDialog.Choice<string>(
+                context,
+                this.DisplayRandomCard,
+                new string[] { "Show me food!" },
+                "Sorry, I didn't understand that :( \n Press the button below to see food!",
+                "Ooops, what you wrote is not a valid option, please try again",
+                3,
+                PromptStyle.Auto);
         }
 
         private static Attachment BuildHeroCard(FoodCardModel currentFood)
@@ -177,6 +131,53 @@ namespace HungryBot.Dialogs
             return heroCard.ToAttachment();
         }
 
+        private FoodCardModel getRandomFood(List<FoodModel> list)
+        {
+            //Randomize order
+            Random rnd = new Random();
+            int index = rnd.Next(0, list.Count);
+            FoodModel selectedFood = list[index];
 
+            var name = selectedFood.Name;
+            List<string> urlList = new List<string>();
+            urlList.Add(selectedFood.URL1);
+            urlList.Add(selectedFood.URL2);
+            urlList.Add(selectedFood.URL3);
+            urlList.Add(selectedFood.URL4);
+            urlList.Add(selectedFood.URL5);
+            urlList.Add(selectedFood.URL6);
+
+            FoodCardModel foodCard = new FoodCardModel(name, urlList);
+
+            return foodCard;
+        }
+
+        public async Task DisplayRandomCard(IDialogContext context, IAwaitable<Object> result)
+        {
+            var userText = await result;
+
+            var message = context.MakeMessage();
+
+            List<FoodModel> foodList = await FoodModel.GetFoodList();
+            currentFood = getRandomFood(foodList);
+            var attachment = BuildHeroCard(currentFood);
+            message.Attachments.Add(attachment);
+
+            await context.PostAsync(message);
+
+            return;
+        }
+
+        private async void ShowFoodCard(FoodCardModel currentFood, IDialogContext context)
+        {
+            var message = context.MakeMessage();
+
+            var attachment = BuildHeroCard(currentFood);
+            message.Attachments.Add(attachment);
+
+            await context.PostAsync(message);
+
+            return;
+        }
     }
 }
