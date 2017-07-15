@@ -29,14 +29,22 @@ namespace HungryBot.Dialogs
         {
             var activity = await result as Activity;
 
-            PromptDialog.Choice<string>(
-            context,
-            GetStarted,
-            new string[] { StartOption },
-            "Hi there! I'm the Hungry Bot. Are you hungry?",
-            "Ooops, what you wrote is not a valid option, please try again",
-            3,
-            PromptStyle.Auto);
+            if(activity.Text.Contains(MoreOption) || activity.Text.Contains(NextOption))
+            {
+                //TODO: pass over to get started somehow
+                await BotOptions(context, activity.Text);
+            }
+            else
+            {
+                PromptDialog.Choice<string>(
+                    context,
+                    GetStarted,
+                    new string[] { StartOption },
+                    "Hi there! I'm the Hungry Bot. Are you hungry?",
+                    "Ooops, what you wrote is not a valid option, please try again",
+                    3,
+                    PromptStyle.Auto);
+            }
             
         }
 
@@ -52,15 +60,15 @@ namespace HungryBot.Dialogs
                 currentFood = getRandomFood(foodList);
             }
 
+
             showFood(context, currentFood);
         }
 
-        private async Task BotOptions(IDialogContext context, IAwaitable<object> result)
+        private async Task BotOptions(IDialogContext context, string userText)
         {
-            var userText = await result;
             List<FoodModel> foodList = await FoodModel.GetFoodList();
 
-            if (userText.ToString() == MoreOption)
+            if (userText.ToString().Contains(MoreOption))
             {
                 //More of the same food
                 //await DisplayFoodCard(context, result);
@@ -75,7 +83,7 @@ namespace HungryBot.Dialogs
                 }
                 showFood(context, currentFood);
             }
-            else if (userText.ToString() == NextOption)
+            else if (userText.ToString().Contains(NextOption))
             {
                 //Next food type
                 currentFood = getRandomFood(foodList);
@@ -91,16 +99,22 @@ namespace HungryBot.Dialogs
             }
         }
 
-        private void showFood(IDialogContext context, FoodCardModel current)
+        private async void showFood(IDialogContext context, FoodCardModel current)
         {
-            PromptDialog.Choice<string>(
-                context,
-                BotOptions,
-                new string[] { MoreOption, NextOption, FindOption },
-                current.name,
-                "Ooops, what you wrote is not a valid option, please try again",
-                3,
-                PromptStyle.Auto);
+            //PromptDialog.Choice<string>(
+            //    context,
+            //    BotOptions,
+            //    new string[] { MoreOption, NextOption, FindOption },
+            //    current.name,
+            //    "Ooops, what you wrote is not a valid option, please try again",
+            //    3,
+            //    PromptStyle.Auto);
+
+            var message = context.MakeMessage();
+            var attachment = BuildHeroCard(currentFood);
+            message.Attachments.Add(attachment);
+
+            await context.PostAsync(message);
         }
 
         private FoodCardModel getRandomFood(List<FoodModel> list)
@@ -122,6 +136,23 @@ namespace HungryBot.Dialogs
             FoodCardModel foodCard = new FoodCardModel(name, urlList);
 
             return foodCard;
+        }
+
+        private static Attachment BuildHeroCard(FoodCardModel currentFood)
+        {
+            var foodName = currentFood.name;
+            var foodURL = currentFood.getCurrentURL();
+
+            var heroCard = new HeroCard
+            {
+                Title = String.Format("How about {0}?", foodName),
+                Images = new List<CardImage> { new CardImage(foodURL) },
+                Buttons = new List<CardAction> { new CardAction(ActionTypes.ImBack, MoreOption, value: "Show me more " + foodName),
+                    new CardAction(ActionTypes.ImBack, NextOption, value: NextOption),
+                    new CardAction(ActionTypes.OpenUrl, FindOption, value: String.Format(yelpUrl, foodName))}
+            };
+
+            return heroCard.ToAttachment();
         }
     }
 }
