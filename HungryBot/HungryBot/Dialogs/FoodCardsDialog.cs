@@ -32,7 +32,30 @@ namespace HungryBot.Dialogs
             if(activity.Text.Contains(MoreOption) || activity.Text.Contains(NextOption))
             {
                 //TODO: pass over to get started somehow
-                await BotOptions(context, activity.Text);
+                var userText = activity.Text;
+                List<FoodModel> foodList = await FoodModel.GetFoodList();
+
+                if (userText.ToString().Contains(MoreOption))
+                {
+                    //More of the same food
+                    //await DisplayFoodCard(context, result);
+                    if (currentFood == null)
+                    {
+                        //No current food - generate random
+                        currentFood = getRandomFood(foodList);
+                    }
+                    else
+                    {
+                        currentFood.IncrementIndex();
+                    }
+                    showFood(context, currentFood);
+                }
+                else if (userText.ToString().Contains(NextOption))
+                {
+                    //Next food type
+                    currentFood = getRandomFood(foodList);
+                    showFood(context, currentFood);
+                }
             }
             else
             {
@@ -64,8 +87,10 @@ namespace HungryBot.Dialogs
             showFood(context, currentFood);
         }
 
-        private async Task BotOptions(IDialogContext context, string userText)
+        private async Task BotOptions(IDialogContext context, IAwaitable<object> result)
         {
+            var activity = await result as Activity;
+            var userText = activity.Text;
             List<FoodModel> foodList = await FoodModel.GetFoodList();
 
             if (userText.ToString().Contains(MoreOption))
