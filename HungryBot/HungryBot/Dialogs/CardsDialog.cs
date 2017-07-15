@@ -83,9 +83,7 @@ namespace HungryBot.Dialogs
             }
 
             ShowFoodCard(currentFood, context);
-
-            context.Wait(MessageReceivedAsync);
-
+        
         }
 
 
@@ -123,8 +121,8 @@ namespace HungryBot.Dialogs
             {
                 Title = String.Format("How about {0}?", foodName),
                 Images = new List<CardImage> { new CardImage(foodURL) },
-                Buttons = new List<CardAction> { new CardAction(ActionTypes.ImBack, MoreOption, value: "Show me more " + foodName),
-                    new CardAction(ActionTypes.ImBack, NextOption, value: NextOption),
+                Buttons = new List<CardAction> { new CardAction(ActionTypes.PostBack, MoreOption, value: "Show me more " + foodName),
+                    new CardAction(ActionTypes.PostBack, NextOption, value: NextOption),
                     new CardAction(ActionTypes.OpenUrl, FindOption, value: String.Format(yelpUrl, foodName))}
             };
 
@@ -165,7 +163,7 @@ namespace HungryBot.Dialogs
 
             await context.PostAsync(message);
 
-            return;
+            context.Wait(MessageReceivedAsync);
         }
 
         private async void ShowFoodCard(FoodCardModel currentFood, IDialogContext context)
@@ -176,8 +174,6 @@ namespace HungryBot.Dialogs
             message.Attachments.Add(attachment);
 
             await context.PostAsync(message);
-
-            return;
         }
     }
 }
