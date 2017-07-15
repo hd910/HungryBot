@@ -152,7 +152,7 @@ namespace HungryBot.Dialogs
             return foodCard;
         }
 
-        public async Task DisplayRandomCard(IDialogContext context, IAwaitable<Object> result)
+        private async Task DisplayRandomCard(IDialogContext context, IAwaitable<Object> result)
         {
             var userText = await result;
 
