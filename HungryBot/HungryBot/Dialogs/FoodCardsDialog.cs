@@ -87,53 +87,8 @@ namespace HungryBot.Dialogs
             showFood(context, currentFood);
         }
 
-        private async Task BotOptions(IDialogContext context, IAwaitable<object> result)
-        {
-            var activity = await result as Activity;
-            var userText = activity.Text;
-            List<FoodModel> foodList = await FoodModel.GetFoodList();
-
-            if (userText.ToString().Contains(MoreOption))
-            {
-                //More of the same food
-                //await DisplayFoodCard(context, result);
-                if (currentFood == null)
-                {
-                    //No current food - generate random
-                    currentFood = getRandomFood(foodList);
-                }
-                else
-                {
-                    currentFood.IncrementIndex();
-                }
-                showFood(context, currentFood);
-            }
-            else if (userText.ToString().Contains(NextOption))
-            {
-                //Next food type
-                currentFood = getRandomFood(foodList);
-                showFood(context, currentFood);
-            }
-            else if (userText.ToString() == FindOption)
-            {
-                //showFood(context);
-            }
-            else
-            {
-
-            }
-        }
-
         private async void showFood(IDialogContext context, FoodCardModel current)
         {
-            //PromptDialog.Choice<string>(
-            //    context,
-            //    BotOptions,
-            //    new string[] { MoreOption, NextOption, FindOption },
-            //    current.name,
-            //    "Ooops, what you wrote is not a valid option, please try again",
-            //    3,
-            //    PromptStyle.Auto);
 
             var message = context.MakeMessage();
             var attachment = BuildHeroCard(currentFood);
