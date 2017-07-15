@@ -7,7 +7,6 @@ using System.Web;
 
 namespace HungryBot.Model
 {
-    [Serializable]
     public class FoodModel
     {
         public string Id { get; set; }
