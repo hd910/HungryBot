@@ -38,7 +38,6 @@ namespace HungryBot.Dialogs
                 if (userText.ToString().Contains(MoreOption))
                 {
                     //More of the same food
-                    //await DisplayFoodCard(context, result);
                     if (currentFood == null)
                     {
                         //No current food - generate random
@@ -48,7 +47,7 @@ namespace HungryBot.Dialogs
                     {
                         currentFood.IncrementIndex();
                     }
-                    showFood(context, currentFood);
+                     showFood(context, currentFood);
                 }
                 else if (userText.ToString().Contains(NextOption))
                 {
@@ -90,11 +89,12 @@ namespace HungryBot.Dialogs
         private async void showFood(IDialogContext context, FoodCardModel current)
         {
 
-            var message = context.MakeMessage();
-            var attachment = BuildHeroCard(currentFood);
-            message.Attachments.Add(attachment);
+            //var message = context.MakeMessage();
+            //var attachment = BuildHeroCard(currentFood);
+            //message.Attachments.Add(attachment);
 
-            await context.PostAsync(message);
+            //await context.PostAsync(message);
+            await context.PostAsync($@"Hi {current.name}!");
         }
 
         private FoodCardModel getRandomFood(List<FoodModel> list)
