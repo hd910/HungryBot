@@ -88,13 +88,11 @@ namespace HungryBot.Dialogs
 
         private async void showFood(IDialogContext context, FoodCardModel current)
         {
+            var message = context.MakeMessage();
+            var attachment = BuildHeroCard(currentFood);
+            message.Attachments.Add(attachment);
 
-            //var message = context.MakeMessage();
-            //var attachment = BuildHeroCard(currentFood);
-            //message.Attachments.Add(attachment);
-
-            //await context.PostAsync(message);
-            await context.PostAsync($@"Hi {current.name}!");
+            await context.PostAsync(message);
         }
 
         private FoodCardModel getRandomFood(List<FoodModel> list)
