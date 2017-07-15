@@ -18,7 +18,7 @@ namespace HungryBot.Dialogs
         private const string StartOption = "Show me food!";
         private const string yelpUrl = "https://www.yelp.com/search?find_desc={0}&ns=1";
 
-        private IEnumerable<string> options = new List<string> { MoreOption, NextOption, FindOption };
+        private List<string> options = new List<string> { MoreOption, NextOption, FindOption };
         private FoodCardModel currentFood;
 
 
@@ -95,6 +95,7 @@ namespace HungryBot.Dialogs
             message.Attachments.Add(attachment);
 
             await context.PostAsync(message);
+
         }
 
         private FoodCardModel getRandomFood(List<FoodModel> list)
@@ -155,6 +156,8 @@ namespace HungryBot.Dialogs
             message.Attachments.Add(attachment);
 
             await context.PostAsync(message);
+
+            context.Wait(this.MessageReceivedAsync);
         }
 
         private static Attachment BuildHeroCard(FoodCardModel currentFood)
