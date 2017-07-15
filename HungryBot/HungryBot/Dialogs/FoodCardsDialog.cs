@@ -58,14 +58,15 @@ namespace HungryBot.Dialogs
             }
             else
             {
-                PromptDialog.Choice<string>(
-                    context,
-                    GetStarted,
-                    new string[] { StartOption },
-                    "Hi there! I'm the Hungry Bot. Are you hungry?",
-                    "Ooops, what you wrote is not a valid option, please try again",
-                    3,
-                    PromptStyle.Auto);
+                //PromptDialog.Choice<string>(
+                //    context,
+                //    GetStarted,
+                //    new string[] { StartOption },
+                //    "Hi there! I'm the Hungry Bot. Are you hungry?",
+                //    "Ooops, what you wrote is not a valid option, please try again",
+                //    3,
+                //    PromptStyle.Auto);
+                await context.PostAsync($@"You wrote {activity.Text}!");
             }
             
         }
