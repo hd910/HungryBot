@@ -33,6 +33,7 @@ namespace HungryBot.Dialogs
             {
                 //TODO: pass over to get started somehow
                 var userText = activity.Text;
+                await context.PostAsync("Getting food");
                 List<FoodModel> foodList = await FoodModel.GetFoodList();
 
                 if (userText.ToString().Contains(MoreOption))
@@ -47,28 +48,30 @@ namespace HungryBot.Dialogs
                     {
                         currentFood.IncrementIndex();
                     }
-                     showFood(context, currentFood);
+                    await context.PostAsync("Received food");
+                    showFood(context, currentFood);
                 }
                 else if (userText.ToString().Contains(NextOption))
                 {
                     //Next food type
                     currentFood = getRandomFood(foodList);
+                    await context.PostAsync("Received food");
                     showFood(context, currentFood);
                 }
             }
             else
             {
-                //PromptDialog.Choice<string>(
-                //    context,
-                //    GetStarted,
-                //    new string[] { StartOption },
-                //    "Hi there! I'm the Hungry Bot. Are you hungry?",
-                //    "Ooops, what you wrote is not a valid option, please try again",
-                //    3,
-                //    PromptStyle.Auto);
-                await context.PostAsync($@"You wrote {activity.Text}!");
+                PromptDialog.Choice<string>(
+                    context,
+                    GetStarted,
+                    new string[] { StartOption },
+                    "Hi there! I'm the Hungry Bot. Are you hungry?",
+                    "Ooops, what you wrote is not a valid option, please try again",
+                    3,
+                    PromptStyle.Auto);
+                
             }
-            
+            await context.PostAsync("Complete");
         }
 
         private async Task GetStarted(IDialogContext context, IAwaitable<object> result)
