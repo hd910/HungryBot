@@ -39,8 +39,11 @@ namespace HungryBot.Dialogs
 
             if (!returning)
             {
-                await context.PostAsync("Hi there!");
-                await context.PostAsync("I'm called the Hungry Bot and I'm here to help you find out what you feel like eating today.");
+                if (activity.From.Name != null)
+                    await context.PostAsync(String.Format("Hi there {0}!", activity.From.Name));
+                else
+                    await context.PostAsync("Hi there!");
+                await context.PostAsync("I'm the Hungry Bot and I'm here to help you find out what you feel like eating today.");
 
                 //Save state
                 var data = context.UserData;
