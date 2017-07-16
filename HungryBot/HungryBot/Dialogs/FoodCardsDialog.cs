@@ -33,7 +33,6 @@ namespace HungryBot.Dialogs
             {
                 //TODO: pass over to get started somehow
                 var userText = activity.Text;
-                await context.PostAsync("Getting food");
                 List<FoodModel> foodList = await FoodModel.GetFoodList();
 
                 if (userText.ToString().Contains(MoreOption))
@@ -71,7 +70,6 @@ namespace HungryBot.Dialogs
                     PromptStyle.Auto);
                 
             }
-            await context.PostAsync("Complete");
         }
 
         private async Task GetStarted(IDialogContext context, IAwaitable<object> result)
