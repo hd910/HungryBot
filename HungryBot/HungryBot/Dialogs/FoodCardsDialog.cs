@@ -28,10 +28,10 @@ namespace HungryBot.Dialogs
         private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
         {
             var activity = await result as Activity;
+            
 
-            if(activity.Text.Contains(MoreOption) || activity.Text.Contains(NextOption))
+            if (activity.Text.Contains(MoreOption) || activity.Text.Contains(NextOption))
             {
-                //TODO: pass over to get started somehow
                 var userText = activity.Text;
                 List<FoodModel> foodList = FoodModel.GetFoodList();
 
@@ -47,14 +47,14 @@ namespace HungryBot.Dialogs
                     {
                         currentFood.IncrementIndex();
                     }
-                    await context.PostAsync("Received food");
+                    await context.PostAsync("Showing " + currentFood.name);
                     showFood(context, currentFood);
                 }
                 else if (userText.ToString().Contains(NextOption))
                 {
                     //Next food type
                     currentFood = getRandomFood(foodList);
-                    await context.PostAsync("Received food");
+                    await context.PostAsync("Showing " + currentFood.name);
                     showFood(context, currentFood);
                 }
             }
@@ -84,17 +84,65 @@ namespace HungryBot.Dialogs
                 currentFood = getRandomFood(foodList);
             }
 
-
             showFood(context, currentFood);
         }
 
-        private async void showFood(IDialogContext context, FoodCardModel current)
+        private async Task UserChoice(IDialogContext context, IAwaitable<object> result)
         {
-            var message = context.MakeMessage();
-            var attachment = BuildHeroCard(currentFood);
-            message.Attachments.Add(attachment);
+            var activity = await result;
+            //await context.PostAsync($@"Hi {activity}!");
 
-            await context.PostAsync(message);
+            if (activity.ToString().Contains(MoreOption) || activity.ToString().Contains(NextOption))
+            {
+                var userText = activity.ToString();
+                List<FoodModel> foodList = FoodModel.GetFoodList();
+
+                if (userText.ToString().Contains(MoreOption))
+                {
+                    //More of the same food
+                    if (currentFood == null)
+                    {
+                        //No current food - generate random
+                        currentFood = getRandomFood(foodList);
+                    }
+                    else
+                    {
+                        currentFood.IncrementIndex();
+                    }
+                    await context.PostAsync("Showing " + currentFood.name);
+                    showFood(context, currentFood);
+                }
+                else if (userText.ToString().Contains(NextOption))
+                {
+                    //Next food type
+                    currentFood = getRandomFood(foodList);
+                    await context.PostAsync("Showing " + currentFood.name);
+                    showFood(context, currentFood);
+                }
+            }
+            else
+            {
+
+            }
+
+        }
+
+        private void showFood(IDialogContext context, FoodCardModel current)
+        {
+            //var message = context.MakeMessage();
+            //var attachment = BuildHeroCard(currentFood);
+            //message.Attachments.Add(attachment);
+
+            //await context.PostAsync(message);
+
+            PromptDialog.Choice<string>(
+                    context,
+                    UserChoice,
+                    new string[] { MoreOption, NextOption, FindOption },
+                    "What now?",
+                    "Ooops, what you wrote is not a valid option, please try again",
+                    3,
+                    PromptStyle.Auto);
         }
 
         private FoodCardModel getRandomFood(List<FoodModel> list)
