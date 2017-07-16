@@ -29,12 +29,15 @@ namespace HungryBot.Dialogs
         {
             var activity = await result as Activity;
 
+            await context.PostAsync("Hi there!");
+            await context.PostAsync("I'm called the Hungry Bot and I'm here to help you find out what you feel like eating today.");
+
             PromptDialog.Choice<string>(
                 context,
                 UserChoice,
                 new string[] { StartOption },
-                "Hi there! I'm the Hungry Bot. Are you hungry?",
-                "Ooops, what you wrote is not a valid option, please try again",
+                "When you're ready press the button below!",
+                "Ooops! I didnt get that... but press the button below to get started!",
                 3,
                 PromptStyle.Auto);
         }
@@ -70,7 +73,7 @@ namespace HungryBot.Dialogs
                 if(currentFood != null)
                 {
                     Uri uri = new Uri(String.Format(yelpUrl, currentFood.name));
-                    await context.PostAsync("You can find " + currentFood.name + " here: " + uri.AbsoluteUri);
+                    await context.PostAsync("Our friends at Yelp will help you find " + currentFood.name.ToLower() + " here: " + uri.AbsoluteUri);
                     return;
                 }
                 else
