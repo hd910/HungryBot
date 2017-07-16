@@ -140,9 +140,6 @@
     <Content Include="packages.config">
       <SubType>Designer</SubType>
     </Content>
-    <EmbeddedResource Include="HungryData.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
