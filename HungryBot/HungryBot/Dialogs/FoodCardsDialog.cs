@@ -12,10 +12,13 @@ namespace HungryBot.Dialogs
     [Serializable]
     public class FoodCardsDialog : IDialog<object>
     {
-        private const string MoreOption = "Show me more";
+        private const string MoreOption = "Show me more {0}";
         private const string NextOption = "Next food";
         private const string FindOption = "Find Restaurant";
         private const string StartOption = "Show me food!";
+        private const string ErrorMsg = "Ooops! I didnt get that... but press the button below to get started!";
+        private const string ChoiceErrorMsg = "Ooops! I didnt get that... but press one of the options below!";
+        private const string GetStartedMsg = "When you're ready press the button below!";
         private const string yelpUrl = "https://www.yelp.com/search?find_desc={0}&ns=1";
         private FoodCardModel currentFood;
 
@@ -48,12 +51,13 @@ namespace HungryBot.Dialogs
                 await context.PostAsync("Welcome Back!");
             }
 
+            //Get started prompt
             PromptDialog.Choice<string>(
                 context,
                 UserChoice,
                 new string[] { StartOption },
-                "When you're ready press the button below!",
-                "Ooops! I didnt get that... but press the button below to get started!",
+                GetStartedMsg,
+                ErrorMsg,
                 3,
                 PromptStyle.Auto);
         }
@@ -94,12 +98,13 @@ namespace HungryBot.Dialogs
                 }
                 else
                 {
+                    //User types find food without previous prompt
                     PromptDialog.Choice<string>(
                         context,
                         UserChoice,
                         new string[] { StartOption },
                         "Not sure what you mean... but I'm guessing you're hungry?",
-                        "Ooops, what you wrote is not a valid option, please try again",
+                        ErrorMsg,
                         3,
                         PromptStyle.Auto);
                 }
@@ -120,9 +125,9 @@ namespace HungryBot.Dialogs
             PromptDialog.Choice<string>(
                 context,
                 UserChoice,
-                new string[] { MoreOption, NextOption, FindOption },
+                new string[] { String.Format(MoreOption, currentFood.name), NextOption, FindOption },
                 "How about "+currentFood.name + "?",
-                "Ooops, what you wrote is not a valid option, please try again",
+                ChoiceErrorMsg,
                 3,
                 PromptStyle.Auto);
         }
