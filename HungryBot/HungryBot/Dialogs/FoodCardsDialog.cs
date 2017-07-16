@@ -48,7 +48,6 @@ namespace HungryBot.Dialogs
             if (activity.ToString().Contains(MoreOption) || activity.ToString().Contains(NextOption))
             {
                 var userText = activity.ToString();
-                
 
                 if (userText.ToString().Contains(MoreOption))
                 {
@@ -75,38 +74,23 @@ namespace HungryBot.Dialogs
             {
                 //Next food type
                 currentFood = getRandomFood(foodList);
-                //showFood(context, currentFood);
             }
 
-            await context.PostAsync("Image of " + currentFood.name);
-
+            //Image attachment message
             var message = context.MakeMessage();
             var attachment = GetImageAttachment(currentFood.getCurrentURL());
             message.Attachments.Add(attachment);
             message.Text = "How about " + currentFood.name;
             await context.PostAsync(message);
 
-            context.Wait(UserChoice);
-        }
-
-        private async void showFood(IDialogContext context, FoodCardModel current)
-        {
-            //var message = context.MakeMessage();
-            //var attachment = BuildHeroCard(currentFood);
-            //message.Attachments.Add(attachment);
-
-            //await context.PostAsync(message);
-
-
-            //PromptDialog.Choice<string>(
-            //        context,
-            //        UserChoice,
-            //        new string[] { MoreOption, NextOption, FindOption },
-            //        "What now?",
-            //        "Ooops, what you wrote is not a valid option, please try again",
-            //        3,
-            //        PromptStyle.Auto);
-            
+            PromptDialog.Choice<string>(
+                context,
+                UserChoice,
+                new string[] { MoreOption, NextOption, FindOption },
+                "What do you want to do now?",
+                "Ooops, what you wrote is not a valid option, please try again",
+                3,
+                PromptStyle.Auto);
         }
 
         private FoodCardModel getRandomFood(List<FoodModel> list)
@@ -137,23 +121,6 @@ namespace HungryBot.Dialogs
                 ContentType = "image/png",
                 ContentUrl = link
             };
-        }
-
-        private static Attachment BuildHeroCard(FoodCardModel currentFood)
-        {
-            var foodName = currentFood.name;
-            var foodURL = currentFood.getCurrentURL();
-
-            var heroCard = new HeroCard
-            {
-                Title = String.Format("How about {0}?", foodName),
-                Images = new List<CardImage> { new CardImage(foodURL) },
-                Buttons = new List<CardAction> { new CardAction(ActionTypes.ImBack, MoreOption, value: "Show me more " + foodName),
-                    new CardAction(ActionTypes.ImBack, NextOption, value: NextOption),
-                    new CardAction(ActionTypes.OpenUrl, FindOption, value: String.Format(yelpUrl, foodName))}
-            };
-
-            return heroCard.ToAttachment();
         }
     }
 }
