@@ -45,34 +45,49 @@ namespace HungryBot.Dialogs
             //await context.PostAsync($@"Hi {activity}!");
             List<FoodModel> foodList = FoodModel.GetFoodList();
 
-            if (activity.ToString().Contains(MoreOption) || activity.ToString().Contains(NextOption))
-            {
-                var userText = activity.ToString();
+            var userText = activity.ToString();
 
-                if (userText.ToString().Contains(MoreOption))
+            if (userText.Contains(MoreOption))
+            {
+                //More of the same food
+                if (currentFood == null)
                 {
-                    //More of the same food
-                    if (currentFood == null)
-                    {
-                        //No current food - generate random
-                        currentFood = getRandomFood(foodList);
-                    }
-                    else
-                    {
-                        currentFood.IncrementIndex();
-                    }
-                    //showFood(context, currentFood);
-                }
-                else if (userText.ToString().Contains(NextOption))
-                {
-                    //Next food type
+                    //No current food - generate random
                     currentFood = getRandomFood(foodList);
-                    //showFood(context, currentFood);
+                }
+                else
+                {
+                    currentFood.IncrementIndex();
+                }
+            } else if (userText.Contains(NextOption))
+            {
+                //Next food type
+                currentFood = getRandomFood(foodList);
+            }
+            else if (userText.Contains(FindOption))
+            {
+                //Find restaurant 
+                if(currentFood != null)
+                {
+                    Uri uri = new Uri(String.Format(yelpUrl, currentFood.name));
+                    await context.PostAsync("You can find " + currentFood.name + " here: " + uri.AbsoluteUri);
+                    return;
+                }
+                else
+                {
+                    PromptDialog.Choice<string>(
+                        context,
+                        UserChoice,
+                        new string[] { StartOption },
+                        "Not sure what you mean... but I'm guessing you're hungry?",
+                        "Ooops, what you wrote is not a valid option, please try again",
+                        3,
+                        PromptStyle.Auto);
                 }
             }
             else
             {
-                //Next food type
+                //New session- Show random food
                 currentFood = getRandomFood(foodList);
             }
 
@@ -80,14 +95,14 @@ namespace HungryBot.Dialogs
             var message = context.MakeMessage();
             var attachment = GetImageAttachment(currentFood.getCurrentURL());
             message.Attachments.Add(attachment);
-            message.Text = "How about " + currentFood.name;
             await context.PostAsync(message);
 
+            //Next available choice dialog
             PromptDialog.Choice<string>(
                 context,
                 UserChoice,
                 new string[] { MoreOption, NextOption, FindOption },
-                "What do you want to do now?",
+                "How about "+currentFood.name + "?",
                 "Ooops, what you wrote is not a valid option, please try again",
                 3,
                 PromptStyle.Auto);
