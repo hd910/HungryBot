@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Web;
 
 namespace HungryBot.Model
@@ -53,23 +55,33 @@ namespace HungryBot.Model
 
         public static List<FoodModel> foodList;
 
-        public static async System.Threading.Tasks.Task<List<FoodModel>> GetFoodList()
+        public static List<FoodModel> GetFoodList()
         {
             if(foodList == null)
             {
-                foodList = await LoadFoodListAsync();
+                foodList = LoadFoodListAsync();
             }
 
             return foodList;
         }
 
-        public static async System.Threading.Tasks.Task<List<FoodModel>> LoadFoodListAsync()
+        public static List<FoodModel> LoadFoodListAsync()
         {
-            HttpClient _client = new HttpClient();
-            var url = "http://hungrydata.azurewebsites.net/foodURLList.txt";
-            var content = await _client.GetStringAsync(url);
+            //HttpClient _client = new HttpClient();
+            //var url = "http://hungrydata.azurewebsites.net/foodURLList.txt";
+            //var content = await _client.GetStringAsync(url);
 
             List<FoodModel> foodList = new List<FoodModel>();
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "HungryBot.foodURLList.txt";
+            string content;
+
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                content = reader.ReadToEnd();
+            }
 
 
             if (content != null)

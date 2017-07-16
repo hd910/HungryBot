@@ -33,7 +33,7 @@ namespace HungryBot.Dialogs
         {
             var activity = await result as Activity;
 
-            List<FoodModel> foodList = await FoodModel.GetFoodList();
+            List<FoodModel> foodList = FoodModel.GetFoodList();
 
             //Get state
             StateClient stateClient = activity.GetStateClient();
@@ -156,7 +156,7 @@ namespace HungryBot.Dialogs
 
             var message = context.MakeMessage();
 
-            List<FoodModel> foodList = await FoodModel.GetFoodList();
+            List<FoodModel> foodList = FoodModel.GetFoodList();
             currentFood = getRandomFood(foodList);
             var attachment = BuildHeroCard(currentFood);
             message.Attachments.Add(attachment);
