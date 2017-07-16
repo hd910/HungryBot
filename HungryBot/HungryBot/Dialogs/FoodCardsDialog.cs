@@ -29,8 +29,24 @@ namespace HungryBot.Dialogs
         {
             var activity = await result as Activity;
 
-            await context.PostAsync("Hi there!");
-            await context.PostAsync("I'm called the Hungry Bot and I'm here to help you find out what you feel like eating today.");
+            //Get user state
+            StateClient stateClient = activity.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
+            var returning = userData.GetProperty<bool>("Returning");
+
+            if (!returning)
+            {
+                await context.PostAsync("Hi there!");
+                await context.PostAsync("I'm called the Hungry Bot and I'm here to help you find out what you feel like eating today.");
+
+                //Save state
+                var data = context.UserData;
+                data.SetValue("Returning", false);
+            }
+            else
+            {
+                await context.PostAsync("Welcome Back!");
+            }
 
             PromptDialog.Choice<string>(
                 context,
