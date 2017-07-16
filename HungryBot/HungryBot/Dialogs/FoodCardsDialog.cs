@@ -28,74 +28,27 @@ namespace HungryBot.Dialogs
         private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
         {
             var activity = await result as Activity;
-            
 
-            if (activity.Text.Contains(MoreOption) || activity.Text.Contains(NextOption))
-            {
-                var userText = activity.Text;
-                List<FoodModel> foodList = FoodModel.GetFoodList();
-
-                if (userText.ToString().Contains(MoreOption))
-                {
-                    //More of the same food
-                    if (currentFood == null)
-                    {
-                        //No current food - generate random
-                        currentFood = getRandomFood(foodList);
-                    }
-                    else
-                    {
-                        currentFood.IncrementIndex();
-                    }
-                    await context.PostAsync("Showing " + currentFood.name);
-                    showFood(context, currentFood);
-                }
-                else if (userText.ToString().Contains(NextOption))
-                {
-                    //Next food type
-                    currentFood = getRandomFood(foodList);
-                    await context.PostAsync("Showing " + currentFood.name);
-                    showFood(context, currentFood);
-                }
-            }
-            else
-            {
-                PromptDialog.Choice<string>(
-                    context,
-                    GetStarted,
-                    new string[] { StartOption },
-                    "Hi there! I'm the Hungry Bot. Are you hungry?",
-                    "Ooops, what you wrote is not a valid option, please try again",
-                    3,
-                    PromptStyle.Auto);
-                
-            }
-        }
-
-        private async Task GetStarted(IDialogContext context, IAwaitable<object> result)
-        {
-            var activity = await result;
-            List<FoodModel> foodList = FoodModel.GetFoodList();
-            //await context.PostAsync($@"Hi {activity}!");
-
-            if (currentFood == null)
-            {
-                //No current food - generate random
-                currentFood = getRandomFood(foodList);
-            }
-
-            showFood(context, currentFood);
+            PromptDialog.Choice<string>(
+                context,
+                UserChoice,
+                new string[] { StartOption },
+                "Hi there! I'm the Hungry Bot. Are you hungry?",
+                "Ooops, what you wrote is not a valid option, please try again",
+                3,
+                PromptStyle.Auto);
         }
 
         private async Task UserChoice(IDialogContext context, IAwaitable<object> result)
         {
             var activity = await result;
             //await context.PostAsync($@"Hi {activity}!");
+            List<FoodModel> foodList = FoodModel.GetFoodList();
 
             if (activity.ToString().Contains(MoreOption) || activity.ToString().Contains(NextOption))
             {
                 var userText = activity.ToString();
-                List<FoodModel> foodList = FoodModel.GetFoodList();
+                
 
                 if (userText.ToString().Contains(MoreOption))
                 {
@@ -109,25 +62,34 @@ namespace HungryBot.Dialogs
                     {
                         currentFood.IncrementIndex();
                     }
-                    await context.PostAsync("Showing " + currentFood.name);
-                    showFood(context, currentFood);
+                    //showFood(context, currentFood);
                 }
                 else if (userText.ToString().Contains(NextOption))
                 {
                     //Next food type
                     currentFood = getRandomFood(foodList);
-                    await context.PostAsync("Showing " + currentFood.name);
-                    showFood(context, currentFood);
+                    //showFood(context, currentFood);
                 }
             }
             else
             {
-
+                //Next food type
+                currentFood = getRandomFood(foodList);
+                //showFood(context, currentFood);
             }
 
+            await context.PostAsync("Image of " + currentFood.name);
+
+            var message = context.MakeMessage();
+            var attachment = GetImageAttachment(currentFood.getCurrentURL());
+            message.Attachments.Add(attachment);
+            message.Text = "How about " + currentFood.name;
+            await context.PostAsync(message);
+
+            context.Wait(UserChoice);
         }
 
-        private void showFood(IDialogContext context, FoodCardModel current)
+        private async void showFood(IDialogContext context, FoodCardModel current)
         {
             //var message = context.MakeMessage();
             //var attachment = BuildHeroCard(currentFood);
@@ -135,14 +97,16 @@ namespace HungryBot.Dialogs
 
             //await context.PostAsync(message);
 
-            PromptDialog.Choice<string>(
-                    context,
-                    UserChoice,
-                    new string[] { MoreOption, NextOption, FindOption },
-                    "What now?",
-                    "Ooops, what you wrote is not a valid option, please try again",
-                    3,
-                    PromptStyle.Auto);
+
+            //PromptDialog.Choice<string>(
+            //        context,
+            //        UserChoice,
+            //        new string[] { MoreOption, NextOption, FindOption },
+            //        "What now?",
+            //        "Ooops, what you wrote is not a valid option, please try again",
+            //        3,
+            //        PromptStyle.Auto);
+            
         }
 
         private FoodCardModel getRandomFood(List<FoodModel> list)
@@ -164,6 +128,15 @@ namespace HungryBot.Dialogs
             FoodCardModel foodCard = new FoodCardModel(name, urlList);
 
             return foodCard;
+        }
+
+        private static Attachment GetImageAttachment(string link)
+        {
+            return new Attachment
+            {
+                ContentType = "image/png",
+                ContentUrl = link
+            };
         }
 
         private static Attachment BuildHeroCard(FoodCardModel currentFood)
