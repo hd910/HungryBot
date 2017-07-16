@@ -73,7 +73,7 @@ namespace HungryBot.Dialogs
 
             var userText = activity.ToString();
 
-            if (userText.Contains(MoreOption))
+            if (userText.Contains(MoreOption.Substring(0,4)))
             {
                 //More of the same food
                 if (currentFood == null)
